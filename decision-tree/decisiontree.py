@@ -1,28 +1,18 @@
-import os
-import numpy as np
-import pandas as pd
-from sklearn.tree import DecisionTreeClassifier, export_graphviz
-from sklearn import datasets
+# Import library yang diperlukan
+from sklearn.tree import DecisionTreeClassifier
+from sklearn import datasets, tree
+import matplotlib.pyplot as plt
 import pydotplus
 from IPython.display import Image
-
-# Debug: Tambahkan Graphviz PATH ke lingkungan sistem secara manual
-os.environ["PATH"] += os.pathsep + "C:/Program Files/Graphviz/bin"
-
-# Debug: Verifikasi apakah Graphviz dapat dijalankan
-if os.system("dot -version") != 0:
-    print("Error: Graphviz tidak ditemukan di PATH!")
-else:
-    print("Graphviz ditemukan.")
-
-# ===== Bagian 1: Visualisasi Model Decision Tree dengan Dataset Iris =====
+import numpy as np
+import pandas as pd
 
 # Load dataset iris
 iris = datasets.load_iris()
 features = iris['data']
 target = iris['target']
 
-# Buat model Decision Tree
+# Definisikan model Decision Tree
 decisiontree = DecisionTreeClassifier(
     random_state=0,
     max_depth=None,
@@ -42,32 +32,23 @@ print("Prediksi kelas:", model.predict(observation))
 print("Probabilitas kelas:", model.predict_proba(observation))
 
 # Visualisasi Decision Tree
-dot_data = export_graphviz(
+dot_data = tree.export_graphviz(
     decisiontree,
     out_file=None,
     feature_names=iris['feature_names'],
     class_names=iris['target_names'],
-    filled=True,
-    rounded=True,
-    special_characters=True,
+    filled=True,  # Tambahkan warna untuk mempermudah visualisasi
 )
 
-# Konversi dot data ke grafik
 graph = pydotplus.graph_from_dot_data(dot_data)
-
-# Tampilkan grafik sebagai gambar
 Image(graph.create_png())
-graph.write_png("iris.png")  # Simpan grafik ke file
+graph.write_png("iris.png")
 
-print("Visualisasi Decision Tree berhasil disimpan sebagai 'iris.png'.")
-
-# ===== Bagian 2: Dataset Custom =====
-
-# Membaca dataset custom dari file CSV
-# Pastikan file 'dataset-iris.csv' berada di direktori yang sama
+# ============================================
+# Membaca dataset dari file CSV
 irisDataset = pd.read_csv('dataset-iris.csv', delimiter=',', header=0)
 
-# Mengubah kelas (kolom "Species") dari string ke unique integer
+# Mengubah kelas (kolom "Species") dari string ke unique-integer
 irisDataset["Species"] = pd.factorize(irisDataset.Species)[0]
 
 # Menghapus kolom "Id" jika ada
@@ -91,14 +72,14 @@ inputTesting = dataTesting[:, 0:4]
 labelTraining = dataTraining[:, 4]
 labelTesting = dataTesting[:, 4]
 
-# Definisikan model Decision Tree Classifier
-custom_model = DecisionTreeClassifier()
+# Mendifinisikan Decision Tree Classifier
+model = DecisionTreeClassifier()
 
-# Training model dengan data custom
-custom_model = custom_model.fit(inputTraining, labelTraining)
+# Melatih model
+model = model.fit(inputTraining, labelTraining)
 
-# Prediksi data testing
-hasilPrediksi = custom_model.predict(inputTesting)
+# Memprediksi data testing
+hasilPrediksi = model.predict(inputTesting)
 
 # Evaluasi hasil prediksi
 print("Label sebenarnya:", labelTesting)
